@@ -1,0 +1,582 @@
+<!doctype html><html lang="es-DO"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lía · Citas médicas</title><style>
+*{box-sizing:border-box}body{margin:0;background:#eef3f1;color:#16352d;font:16px system-ui,sans-serif}header{background:#153d34;color:white;padding:20px max(24px,calc((100vw - 980px)/2));white-space:nowrap;font-weight:750}header small{font-weight:400;margin-left:12px;color:#bbd9cf}main{max-width:1030px;margin:auto;padding:36px 24px;display:grid;grid-template-columns:1.6fr 1fr;gap:20px}section{background:white;border:1px solid #dbe6e0;border-radius:22px;padding:24px}h1{font-size:34px;letter-spacing:-1.5px;margin:0}h2{font-size:20px;margin:0 0 12px}p{line-height:1.5;margin:8px 0 16px}.muted{color:#48665d}.chat{max-height:360px;overflow:auto;min-height:155px;padding:4px 0}.bubble{padding:12px 15px;border-radius:15px;background:#e7f3ed;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;max-width:94%}.mine{margin-left:auto;background:#163f35;color:white;width:fit-content}button,input{font:inherit}button{border:1px solid #bcd4ca;background:#f3f9f6;color:#153d34;padding:9px 12px;border-radius:12px;cursor:pointer}button:disabled{opacity:.55;cursor:default}.primary{background:#15654f;color:white;border-color:#15654f}form{display:flex;gap:8px;margin:14px 0}input{min-width:0;flex:1;border:1px solid #bcd4ca;border-radius:12px;padding:11px}article{border-top:1px solid #dbe6e0;padding:14px 0}article p{margin:4px 0 8px}dialog{border:1px solid #bcd4ca;border-radius:18px;max-width:calc(100% - 32px)}dialog::backdrop{background:#153d3470}#prompt{margin-top:8px}#more{margin-bottom:18px}#mic[aria-pressed=true]{border-color:#15654f;background:#e2f3eb}@media(max-width:720px){main{grid-template-columns:1fr;padding:18px 12px}section{padding:16px}form{flex-wrap:wrap}}
+</style><header>Lía <small>· Citas médicas</small></header><main><section><h1>Habla con Lía</h1><p class="muted">Usa casos ficticios. Lía te ayuda a encontrar médicos y reservar citas de prueba.</p><div class="chat" id="chat" role="log" aria-label="Conversación"></div><button id="prompt" type="button">Dermatología por la tarde</button><form><input id="message" aria-label="Tu mensaje" placeholder="Escribe tu mensaje" maxlength="1200" required><button class="primary" id="send">Enviar</button></form><button id="mic" type="button" aria-pressed="false">Iniciar conversación de voz</button> <button id="live" type="button" aria-pressed="false">Iniciar Gemini Live</button> <button id="live-mic" type="button" aria-pressed="false" hidden>Activar micrófono</button><p class="muted" id="status" role="status"></p></section><section><h2>Directorio de prueba · República Dominicana</h2><div id="slots"></div><button id="more" type="button" hidden>Ver más médicos</button><h2>Mis citas</h2><div id="bookings"></div></section></main><dialog id="confirm"><h2>Confirmar cita de prueba</h2><p id="summary"></p><button id="dismiss">Volver</button> <button id="book" class="primary">Confirmar cita</button></dialog>
+<script type="module">
+const byId = id => document.getElementById(id);
+const chat = byId('chat'), input = byId('message'), status = byId('status');
+const mic = byId('mic'), dialog = byId('confirm'), send = byId('send');
+const history = [];
+let slots = [], selected, matching, limit = 6, busy = false;
+let voiceActive = false, audioContext, audioSource, speechRequest;
+let urgent = false;
+let bookings = [];
+const publicDirectory = [{"id":"g1","name":"Dra. Sara Lima","specialty":"Medicina general","zone":"La Vega","rating":4.9,"time":"Mañana 10:00"},{"id":"g2","name":"Dr. Bruno Soto","specialty":"Medicina general","zone":"Santo Domingo","rating":4.6,"time":"Mañana 11:30"},{"id":"g3","name":"Dra. Valeria Pinto","specialty":"Medicina general","zone":"La Vega","rating":4.7,"time":"Mañana 15:00"},{"id":"g4","name":"Dr. Nicolás Reyes","specialty":"Medicina general","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"d1","name":"Dra. Elena Paz","specialty":"Dermatología","zone":"Santiago","rating":4.8,"time":"Mañana 15:00"},{"id":"d2","name":"Dr. Mateo Ríos","specialty":"Dermatología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 17:00"},{"id":"d3","name":"Dra. Lucía Montes","specialty":"Dermatología","zone":"La Vega","rating":4.8,"time":"Mañana 17:00"},{"id":"p1","name":"Dra. Inés Flores","specialty":"Pediatría","zone":"La Vega","rating":4.7,"time":"Mañana 15:00"},{"id":"p2","name":"Dr. Tomás Vera","specialty":"Pediatría","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"p3","name":"Dra. Paula Serrano","specialty":"Pediatría","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"o1","name":"Dr. Gabriel Solís","specialty":"Otorrinolaringología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"o2","name":"Dra. Julia León","specialty":"Otorrinolaringología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"o3","name":"Dr. Daniel Prado","specialty":"Otorrinolaringología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"t1","name":"Dra. Clara Molina","specialty":"Traumatología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"t2","name":"Dr. Martín Arias","specialty":"Traumatología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"t3","name":"Dra. Renata Vega","specialty":"Traumatología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"v1","name":"Dra. Sofía Peralta","specialty":"Oftalmología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"v2","name":"Dr. Adrián Salas","specialty":"Oftalmología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"v3","name":"Dra. Eva Durán","specialty":"Oftalmología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"u1","name":"Dr. Emilio Rocha","specialty":"Urología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"u2","name":"Dra. Mara Acosta","specialty":"Urología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"u3","name":"Dr. Iván Funes","specialty":"Urología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"gy1","name":"Dra. Alba Quiroga","specialty":"Ginecología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"gy2","name":"Dra. Iris Aguilar","specialty":"Ginecología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"gy3","name":"Dr. Luis Paredes","specialty":"Ginecología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"ga1","name":"Dra. Teresa Cárdenas","specialty":"Gastroenterología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"ga2","name":"Dr. Simón Castro","specialty":"Gastroenterología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"ga3","name":"Dra. Nora Rojas","specialty":"Gastroenterología","zone":"Santiago","rating":4.5,"time":"Mañana 15:00"},{"id":"n1","name":"Dr. Julián Roca","specialty":"Neurología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"n2","name":"Dra. Laura Marín","specialty":"Neurología","zone":"Santiago","rating":4.5,"time":"Mañana 15:00"}];
+try { bookings = JSON.parse(localStorage.getItem('lia-bookings-do') || '[]'); } catch {}
+function bubble(text, mine = false) {
+  const node = document.createElement('div');
+  node.className = mine ? 'bubble mine' : 'bubble';
+  node.textContent = text;
+  chat.append(node);
+  chat.scrollTop = chat.scrollHeight;
+}
+function label(slot) { return slot.name + ' · ' + slot.specialty + ' · ' + slot.zone + ' · ' + slot.time; }
+function render(ids) {
+  const list = byId('slots');
+  list.replaceChildren();
+  const visible = ids ? ids.map(id => slots.find(slot => slot.id === id)).filter(Boolean) : slots;
+  for (const slot of visible.slice(0,limit)) {
+    const article = document.createElement('article');
+    const title = document.createElement('strong');
+    title.textContent = slot.name;
+    const meta = document.createElement('p');
+    meta.textContent = slot.specialty + ' · ' + slot.zone + ' · ' + slot.rating + ' ★';
+    const button = document.createElement('button');
+    button.textContent = bookings.includes(slot.id) ? 'Reservado en esta demo' : 'Elegir ' + slot.time;
+    button.disabled = bookings.includes(slot.id);
+    button.onclick = () => choose(slot);
+    article.append(title, meta, button);
+    list.append(article);
+  }
+  if (!visible.length) list.textContent = 'Sin turnos para esta búsqueda.';
+  byId('more').hidden = visible.length <= limit;
+  const booked = byId('bookings');
+  booked.replaceChildren();
+  for (const slot of slots.filter(item => bookings.includes(item.id))) {
+    const entry = document.createElement('p');
+    entry.textContent = label(slot);
+    booked.append(entry);
+  }
+  if (!booked.childElementCount) booked.textContent = 'Todavía no tienes citas de prueba.';
+}
+byId('more').onclick = () => { limit += 6; render(matching); };
+function choose(slot) {
+  if (urgent || bookings.includes(slot.id)) return;
+  selected = slot;
+  byId('summary').textContent = label(slot);
+  if (!dialog.open) dialog.showModal();
+}
+byId('dismiss').onclick = () => dialog.close();
+dialog.onclose = () => { if (!dialog.open) selected = undefined; };
+function book() {
+  if (!selected || urgent) return;
+  if (!bookings.includes(selected.id)) bookings.push(selected.id);
+  try { localStorage.setItem('lia-bookings-do', JSON.stringify(bookings)); } catch {}
+  dialog.close();
+  status.textContent = 'Cita de prueba confirmada en este navegador.';
+  render(matching);
+}
+byId('book').onclick = book;
+bubble('Hola, soy Lía. Cuéntame qué sientes en un caso ficticio o qué médico te gustaría buscar.');
+if (publicDirectory) {
+  slots = publicDirectory;
+  render();
+} else {
+  fetch('/api/slots').then(r => r.json()).then(data => { slots = data; render(matching); }).catch(() => { status.textContent = 'No se pudieron cargar los turnos.'; });
+}
+byId('prompt').onclick = () => { input.value = 'Busca dermatología por la tarde'; input.focus(); };
+const AudioOutput = window.AudioContext || window.webkitAudioContext;
+mic.disabled = !navigator.mediaDevices?.getUserMedia || !window.MediaRecorder || !AudioOutput;
+if (mic.disabled) mic.title = 'Abre la demo en un navegador con acceso al micrófono';
+let micStream, micSource, analyser, recorder, meter, transcription;
+
+function stopCapture() {
+  clearInterval(meter);
+  const previous = recorder;
+  recorder = undefined;
+  if (previous?.state === 'recording') previous.stop();
+}
+
+function stopVoice(message = '') {
+  voiceActive = false;
+  stopCapture();
+  transcription?.abort();
+  transcription = undefined;
+  micSource?.disconnect();
+  micSource = undefined;
+  micStream?.getTracks().forEach(track => track.stop());
+  micStream = undefined;
+  speechRequest?.abort();
+  audioSource?.stop();
+  mic.textContent = 'Iniciar conversación de voz';
+  mic.setAttribute('aria-pressed','false');
+  status.textContent = message;
+}
+
+async function toWav(blob) {
+  const decoded = await audioContext.decodeAudioData(await blob.arrayBuffer());
+  const rate = 16000;
+  const offline = new OfflineAudioContext(1, Math.ceil(decoded.duration * rate), rate);
+  const source = offline.createBufferSource();
+  source.buffer = decoded;
+  source.connect(offline.destination);
+  source.start();
+  const samples = (await offline.startRendering()).getChannelData(0);
+  const bytes = new ArrayBuffer(44 + samples.length * 2);
+  const header = new DataView(bytes);
+  for (const [offset, label] of [[0,'RIFF'],[8,'WAVE'],[12,'fmt '],[36,'data']]) {
+    for (let i=0;i<label.length;i++) header.setUint8(offset+i,label.charCodeAt(i));
+  }
+  header.setUint32(4,bytes.byteLength-8,true);
+  header.setUint32(16,16,true);
+  header.setUint16(20,1,true);
+  header.setUint16(22,1,true);
+  header.setUint32(24,rate,true);
+  header.setUint32(28,rate*2,true);
+  header.setUint16(32,2,true);
+  header.setUint16(34,16,true);
+  header.setUint32(40,samples.length*2,true);
+  samples.forEach((sample,i)=>header.setInt16(44+i*2,Math.max(-1,Math.min(1,sample))*32767,true));
+  return bytes;
+}
+
+async function transcribeTurn(blob) {
+  const controller = new AbortController();
+  transcription = controller;
+  status.textContent = 'Lía está escuchando tu mensaje…';
+  try {
+    const wav = await toWav(blob);
+    if (controller.signal.aborted) return;
+    const response = await fetch('/api/transcribe',{
+      method:'POST', headers:{'Content-Type':'audio/wav'}, body:wav, signal:controller.signal
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    if (!controller.signal.aborted && result.text) await sendMessage(result.text);
+  } catch (error) {
+    if (!controller.signal.aborted) stopVoice(error.message || 'No se pudo transcribir tu mensaje.');
+  } finally {
+    if (transcription === controller) transcription = undefined;
+    listenForTurn();
+  }
+}
+
+function listenForTurn() {
+  if (!voiceActive || busy || recorder || transcription || !micStream) return;
+  try {
+    const capture = new MediaRecorder(micStream);
+    recorder = capture;
+    const chunks = [];
+    const samples = new Float32Array(analyser.fftSize);
+    const started = performance.now();
+    let loudFrames = 0, lastVoice = 0;
+    capture.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+    capture.onerror = () => stopVoice('El navegador perdió acceso al micrófono.');
+    capture.onstop = () => {
+      if (recorder !== capture) return;
+      recorder = undefined;
+      clearInterval(meter);
+      if (!voiceActive || busy) return;
+      if (loudFrames >= 3 && chunks.length) {
+        void transcribeTurn(new Blob(chunks,{type:capture.mimeType}));
+      } else {
+        listenForTurn();
+      }
+    };
+    capture.start();
+    status.textContent = 'Te escucho…';
+    meter = setInterval(() => {
+      const now = performance.now();
+      analyser.getFloatTimeDomainData(samples);
+      const rms = Math.sqrt(samples.reduce((sum,value)=>sum+value*value,0)/samples.length);
+      if (rms > .014) {
+        loudFrames++;
+        lastVoice = now;
+      }
+      if (capture.state === 'recording' && ((loudFrames >= 3 && now-lastVoice > 850) || now-started > 15000)) {
+        clearInterval(meter);
+        capture.stop();
+      }
+    },45);
+  } catch {
+    stopVoice('No se pudo grabar. Puedes usar el chat escrito.');
+  }
+}
+
+mic.onclick = async () => {
+  if (voiceActive) {
+    stopVoice('Conversación de voz terminada.');
+    return;
+  }
+  voiceActive = true;
+  mic.textContent = 'Terminar conversación de voz';
+  mic.setAttribute('aria-pressed','true');
+  mic.disabled = true;
+  try {
+    audioContext ??= new AudioOutput();
+    const resumed = audioContext.resume();
+    const stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+    if (!voiceActive) {
+      stream.getTracks().forEach(track => track.stop());
+      return;
+    }
+    micStream = stream;
+    await resumed;
+    micSource = audioContext.createMediaStreamSource(stream);
+    analyser = audioContext.createAnalyser();
+    micSource.connect(analyser);
+    listenForTurn();
+  } catch (error) {
+    stopVoice(error.name === 'NotAllowedError' ? 'Permite el micrófono en el navegador y vuelve a iniciar.'
+      : 'No se pudo abrir el micrófono. Comprueba que esté conectado.');
+  } finally {
+    mic.disabled = false;
+  }
+};
+
+async function speak(reply) {
+  if (!voiceActive) return;
+  const controller = new AbortController();
+  speechRequest = controller;
+  try {
+    const response = await fetch('/api/speech', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:reply}),
+      signal:controller.signal
+    });
+    if (!response.ok) throw new Error((await response.json()).error);
+    const buffer = await audioContext.decodeAudioData(await response.arrayBuffer());
+    if (!voiceActive || controller.signal.aborted) return;
+    audioSource = audioContext.createBufferSource();
+    audioSource.buffer = buffer;
+    audioSource.connect(audioContext.destination);
+    status.textContent = 'Lía está hablando…';
+    await new Promise(resolve => {
+      audioSource.onended = resolve;
+      audioSource.start();
+    });
+  } catch (error) {
+    if (!controller.signal.aborted) stopVoice(error.message || 'No se pudo reproducir la respuesta.');
+  } finally {
+    speechRequest = undefined;
+    audioSource?.disconnect();
+    audioSource = undefined;
+  }
+}
+
+async function sendMessage(message) {
+  if (!message || busy) return;
+  busy = true;
+  send.disabled = true;
+  stopCapture();
+  bubble(message,true);
+  if (publicDirectory) {
+    const normalize = value => value.toLowerCase().normalize('NFD').replace(/\p{M}/gu,'');
+    const query = normalize(message);
+    const province = slots.find(slot => query.includes(normalize(slot.zone)))?.zone;
+    const specialty = slots.find(slot => query.includes(normalize(slot.specialty)))?.specialty;
+    if (!province && !specialty) {
+      bubble('Busca por provincia o especialidad. Por ejemplo, escribe «Dermatología en Santiago».');
+    } else {
+      matching = slots.filter(slot => (!province || slot.zone === province) && (!specialty || slot.specialty === specialty)
+        && (!query.includes('por la tarde') || Number(slot.time.slice(-5,-3)) >= 12)
+        && (!query.includes('por la manana') || Number(slot.time.slice(-5,-3)) < 12)).map(slot=>slot.id);
+      limit = 6;
+      render(matching);
+      bubble(matching.length ? 'Puedes elegir un turno de prueba del directorio.' : 'No encontré turnos con esos filtros. Prueba con otra provincia o especialidad.');
+    }
+    busy = false;
+    send.disabled = false;
+    return;
+  }
+  status.textContent = 'Lía está pensando…';
+  try {
+    const words = message.toLowerCase().normalize('NFD').replace(/\p{M}/gu,'').replace(/[^a-z\s]/g,' ').replace(/\s+/g,' ').trim();
+    if (selected && dialog.open && !urgent && /^(si |lia |lia si )?(confirmar cita|confirma la cita|confirmo la cita|si confirmo)$/.test(words)) {
+      const slot = selected;
+      book();
+      const reply = 'Listo. Confirmé tu cita de prueba con ' + slot.name + ' en ' + slot.zone + '. La puedes ver en Mis citas.';
+      bubble(reply);
+      await speak(reply);
+      return;
+    }
+    if (selected && dialog.open && /^(no|no confirmo|volver|cancelar la seleccion)$/.test(words)) {
+      dialog.close();
+      const reply = 'De acuerdo. Puedes elegir otro horario.';
+      bubble(reply);
+      await speak(reply);
+      return;
+    }
+
+    const response = await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message,history:history.slice(-8),previousIds:matching,bookedIds:bookings})
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    urgent = result.urgent === true;
+    if (dialog.open) dialog.close();
+    const slot = slots.find(item => item.id === result.selectedId && !bookings.includes(item.id));
+    matching = slot ? [slot.id] : result.ids;
+    limit = 6;
+    render(matching);
+    const reply = slot && !urgent ? 'Tengo este turno de prueba: ' + label(slot) + '. Di «confirmar cita» o pulsa Confirmar cita.' : result.reply;
+    if (slot && !urgent) choose(slot);
+    bubble(reply);
+    history.push({role:'user',text:message},{role:'model',text:reply});
+    status.textContent = urgent ? 'Orientación de urgencia' : '';
+    if (result.mode !== 'demo') await speak(reply);
+  } catch (error) {
+    status.textContent = error.message || 'No se pudo enviar el mensaje.';
+    if (!voiceActive && !input.value) input.value = message;
+  } finally {
+    busy = false;
+    send.disabled = false;
+    listenForTurn();
+  }
+}
+
+document.querySelector('form').onsubmit = event => {
+  event.preventDefault();
+  const message = input.value.trim();
+  if (!message || busy) return;
+  input.value = '';
+  if (liveSession?.ready) { bubble(message,true); sendLive(liveSession,{realtimeInput:{text:message}}); } else { void sendMessage(message); }
+};
+window.addEventListener('pagehide', () => stopVoice());
+const liveButton = byId('live');
+const liveMic = byId('live-mic');
+const liveTextOnly = new URLSearchParams(location.search).get('live') === 'texto';
+let liveSession;
+liveButton.disabled = !AudioOutput || !window.WebSocket;
+if (publicDirectory) {
+  mic.hidden = true;
+  liveButton.hidden = true;
+  const fullDemo = document.createElement('a');
+  fullDemo.href = 'https://lia-demo-citas-web.emeraldscout4.chatgpt.site/?rd=1';
+  fullDemo.textContent = 'Abrir demo privada con Gemini';
+  status.before(fullDemo);
+  status.textContent = 'Vista pública. Busca y confirma turnos ficticios en este navegador.';
+}
+
+const liveTools = [
+  {
+    name:'buscar_turnos',
+    description:'Busca hasta tres turnos del directorio ficticio antes de nombrar médicos.',
+    parameters:{type:'OBJECT',properties:{
+      especialidad:{type:'STRING'},zona:{type:'STRING'},
+      horario:{type:'STRING',enum:['mañana','tarde','cualquiera']}
+    }}
+  },
+  {
+    name:'preparar_cita',
+    description:'Abre el resumen de un turno cuando se elige explícitamente. La persona confirma en pantalla.',
+    parameters:{type:'OBJECT',properties:{id:{type:'STRING'}},required:['id']}
+  },
+  {name:'mostrar_urgencias',description:'Oculta la agenda cuando el caso presenta una posible urgencia.'}
+];
+
+function releaseLiveMicrophone(session) {
+  session.stream?.getTracks().forEach(track=>track.stop());
+  session.capture?.disconnect();
+  session.muted?.disconnect();
+  session.source?.disconnect();
+  session.stream = session.capture = session.muted = session.source = undefined;
+}
+
+function closeLive(message = '') {
+  const session = liveSession;
+  if (!session) return;
+  liveSession = undefined;
+  clearTimeout(session.timeout);
+  session.socket?.close();
+  releaseLiveMicrophone(session);
+  for (const node of session.playback) node.stop();
+  liveButton.textContent = 'Iniciar Gemini Live';
+  liveButton.setAttribute('aria-pressed','false');
+  liveMic.hidden = true;
+  liveMic.disabled = false;
+  liveMic.textContent = 'Activar micrófono';
+  liveMic.setAttribute('aria-pressed','false');
+  status.textContent = message;
+}
+
+function sendLive(session, message) {
+  if (session.socket?.readyState === WebSocket.OPEN) session.socket.send(JSON.stringify(message));
+}
+
+function playLive(session, encoded) {
+  const bytes = Uint8Array.fromBase64(encoded);
+  const pcm = new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+  const clip = audioContext.createBuffer(1,Math.floor(bytes.length/2),24000);
+  const samples = clip.getChannelData(0);
+  for (let i=0;i<samples.length;i++) samples[i] = pcm.getInt16(i*2,true)/32768;
+  const node = audioContext.createBufferSource();
+  node.buffer = clip;
+  node.connect(audioContext.destination);
+  node.onended = () => { session.playback.delete(node); node.disconnect(); };
+  session.playback.add(node);
+  const start = Math.max(audioContext.currentTime+.025,session.nextAudio);
+  node.start(start);
+  session.nextAudio = start + clip.duration;
+}
+
+function resolveLiveTool(call) {
+  const {especialidad,zona,horario,id} = call.args ?? {};
+  if (call.name === 'mostrar_urgencias') {
+    urgent = true;
+    if (dialog.open) dialog.close();
+    matching = [];
+    render(matching);
+    return {instruccion:'Si esto sucede ahora, busca atención urgente de inmediato o llama al número local de emergencias. No esperes una cita.'};
+  }
+  if (urgent) return {error:'La agenda está cerrada para este caso de posible urgencia.'};
+  if (call.name === 'buscar_turnos') {
+    const normalize = value => String(value ?? '').toLowerCase().normalize('NFD').replace(/\p{M}/gu,'').trim();
+    const specialty = normalize(especialidad);
+    const area = normalize(zona);
+    const results = slots.filter(slot => !bookings.includes(slot.id)
+      && normalize(slot.specialty).includes(specialty)
+      && normalize(slot.zone).includes(area)
+      && (horario !== 'mañana' || Number(slot.time.slice(-5,-3)) < 12)
+      && (horario !== 'tarde' || Number(slot.time.slice(-5,-3)) >= 12)).slice(0,3);
+    matching = results.map(slot=>slot.id);
+    render(matching);
+    return {turnos:results};
+  }
+  if (call.name === 'preparar_cita') {
+    const slot = slots.find(item=>item.id===id && matching?.includes(id) && !bookings.includes(id));
+    if (!slot) return {error:'Este turno no está entre las opciones mostradas.'};
+    choose(slot);
+    return {turno:slot,confirmacion:'pendiente en pantalla'};
+  }
+  return {error:'Operación desconocida.'};
+}
+
+async function startLiveMicrophone(session) {
+  if (!navigator.mediaDevices?.getUserMedia || !audioContext.audioWorklet || !window.AudioWorkletNode) {
+    status.textContent = 'Gemini Live conectado. Puedes escribir o abrir la demo en un navegador con micrófono.';
+    return;
+  }
+  liveMic.disabled = true;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+    if (liveSession !== session) {
+      stream.getTracks().forEach(track=>track.stop());
+      return;
+    }
+    session.stream = stream;
+    await audioContext.audioWorklet.addModule('/api/live-capture.js');
+    if (liveSession !== session) return;
+    session.source = audioContext.createMediaStreamSource(stream);
+    session.capture = new AudioWorkletNode(audioContext,'lia-capture');
+    session.capture.port.onmessage = event => {
+      if (liveSession !== session || !session.stream || session.socket.bufferedAmount > 256000) return;
+      const pcm = new Uint8Array(event.data.buffer,event.data.byteOffset,event.data.byteLength);
+      sendLive(session,{realtimeInput:{audio:{data:pcm.toBase64(),mimeType:'audio/pcm;rate='+audioContext.sampleRate}}});
+    };
+    session.source.connect(session.capture);
+    const muted = audioContext.createGain();
+    muted.gain.value = 0;
+    session.capture.connect(muted);
+    muted.connect(audioContext.destination);
+    session.muted = muted;
+    liveMic.textContent = 'Silenciar micrófono';
+    liveMic.setAttribute('aria-pressed','true');
+    status.textContent = 'Gemini Live conectado. Te escucho…';
+  } catch {
+    releaseLiveMicrophone(session);
+    if (liveSession === session) status.textContent = 'Gemini Live conectado. Permite el micrófono o escribe para probar la voz.';
+  } finally {
+    if (liveSession === session) liveMic.disabled = false;
+  }
+}
+
+liveMic.onclick = () => {
+  const session = liveSession;
+  if (!session?.ready) return;
+  if (session.stream) {
+    releaseLiveMicrophone(session);
+    sendLive(session,{realtimeInput:{audioStreamEnd:true}});
+    liveMic.textContent = 'Activar micrófono';
+    liveMic.setAttribute('aria-pressed','false');
+    status.textContent = 'Micrófono silenciado. Puedes seguir escribiendo.';
+  } else {
+    void startLiveMicrophone(session);
+  }
+};
+
+async function receiveLive(session, event) {
+  const payload = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
+  if (liveSession !== session) return;
+  if (payload.setupComplete) {
+    clearTimeout(session.timeout);
+    session.ready = true;
+    liveMic.hidden = false;
+    status.textContent = liveTextOnly ? 'Gemini Live conectado. Escribe para escuchar la respuesta.' : 'Gemini Live conectado. Preparando micrófono…';
+    if (!liveTextOnly) void startLiveMicrophone(session);
+  }
+  const content = payload.serverContent;
+  if (content?.interrupted) {
+    for (const node of session.playback) node.stop();
+    session.playback.clear();
+    session.nextAudio = 0;
+  }
+  if (content?.inputTranscription?.text) session.input += content.inputTranscription.text;
+  if (content?.outputTranscription?.text) session.output += content.outputTranscription.text;
+  for (const part of content?.modelTurn?.parts ?? []) {
+    if (part.inlineData?.mimeType?.startsWith('audio/pcm')) playLive(session,part.inlineData.data);
+  }
+  if (content?.turnComplete) {
+    if (session.input.trim()) bubble(session.input.trim(),true);
+    if (session.output.trim()) bubble(session.output.trim());
+    session.input = '';
+    session.output = '';
+  }
+  if (payload.toolCall?.functionCalls?.length) {
+    const functionResponses = payload.toolCall.functionCalls.map(call=>({
+      id:call.id,name:call.name,response:{result:resolveLiveTool(call)}
+    }));
+    sendLive(session,{toolResponse:{functionResponses}});
+  }
+  if (payload.goAway) status.textContent = 'La sesión Live está por terminar. Puedes iniciar otra.';
+  if (payload.error) closeLive('Gemini Live devolvió un error de conexión.');
+}
+
+liveButton.onclick = async () => {
+  if (liveSession) {
+    closeLive('Sesión de Gemini Live terminada.');
+    return;
+  }
+  if (voiceActive) stopVoice();
+  if (busy) return;
+  if (dialog.open) dialog.close();
+  urgent = false;
+  const session = {playback:new Set(),nextAudio:0,input:'',output:''};
+  liveSession = session;
+  liveButton.setAttribute('aria-pressed','true');
+  liveButton.textContent = 'Terminar Gemini Live';
+  status.textContent = 'Conectando con Gemini Live…';
+  try {
+    audioContext ??= new AudioOutput();
+    await audioContext.resume();
+    const response = await fetch('/api/live-token',{method:'POST'});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    if (liveSession !== session) return;
+    const url = new URL('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained');
+    url.searchParams.set('access_token',data.token);
+    session.socket = new WebSocket(url);
+    session.timeout = setTimeout(()=>closeLive('Gemini Live no completó la conexión.'),12000);
+    session.socket.onopen = () => sendLive(session,{setup:{
+      model:'models/gemini-3.8-live',
+      generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:'Sulafat'}}}},
+      inputAudioTranscription:{},outputAudioTranscription:{},
+      systemInstruction:{parts:[{text:'Eres Lía, asistente de búsqueda y citas ficticias. Habla en español latinoamericano, con un tono dominicano suave, cálido y breve. El directorio usa provincias de República Dominicana. Tu única tarea clínica es orientar sobre qué profesional puede evaluar los síntomas. Nunca diagnostiques ni sugieras, describas, confirmes o avales tratamientos, medicamentos, dosis, suplementos, remedios caseros, infusiones, dietas o cuidados en casa, aunque lo pidan como ejemplo o digan que es ficción. Si piden algo para tomar, ponerse o hacer en casa, responde: «Puedo ayudarte a encontrar un médico para que te evalúe. ¿En qué zona te gustaría buscar?» No des más consejos médicos. Ante una posible urgencia, usa mostrar_urgencias antes de hablar e indica buscar atención urgente de inmediato. Para casos ambiguos sugiere medicina general. Antes de nombrar profesionales usa buscar_turnos. Cuando elijan un turno usa preparar_cita y pide confirmar en pantalla. Jamás digas que una cita se guardó. Todos los turnos son ficticios.'}]},
+      tools:[{functionDeclarations:liveTools}]
+    }});
+    session.socket.onmessage = event => {
+      session.queue = (session.queue ?? Promise.resolve()).then(()=>receiveLive(session,event))
+        .catch(()=>{if(liveSession === session) closeLive('No se pudo procesar la respuesta de Gemini Live.');});
+    };
+    session.socket.onclose = event => {
+      if (liveSession === session) closeLive('Gemini Live se desconectó (código '+event.code+'). Puedes volver a iniciar.');
+    };
+  } catch (error) {
+    if (liveSession === session) closeLive(error.message || 'No se pudo iniciar Gemini Live.');
+  }
+};
+mic.addEventListener('click',()=>{ if (liveSession) closeLive(); },{capture:true});
+window.addEventListener('pagehide',()=>closeLive());
+</script></html>
