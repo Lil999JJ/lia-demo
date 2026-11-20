@@ -1,50 +1,58 @@
 <!doctype html>
-<html lang="es-DO">
+<html lang="es-DO" data-type="software">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#141b34">
-<title>Lía · Citas médicas</title>
+<meta name="theme-color" content="#f5f3ed">
+<meta name="page-type" content="software">
+<meta name="site-kind" content="software">
+<title>Lía · Encuentra tu médico</title>
 <style>
-:root{color-scheme:light;--paper:#f2f4fb;--ink:#17213b;--muted:#56617a;--line:#dce2ee;--accent:#5140ba;--ease-out:cubic-bezier(.23,1,.32,1)}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,sans-serif}button,input{font:inherit}button,a,input{touch-action:manipulation}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7567ee;outline-offset:3px}[hidden]{display:none!important}
-header{background:#fff;border-bottom:1px solid var(--line)}.top{max-width:1200px;margin:auto;padding:16px 26px;display:flex;justify-content:space-between;align-items:center;gap:14px}.brand{display:flex;align-items:center;gap:11px;font-weight:780;font-size:21px}.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#e8e4ff;color:#4939b0}.tag{font-size:14px;color:var(--muted)}
-main{max-width:1200px;margin:auto;padding:30px 26px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:22px;align-items:start}.left{min-width:0;display:grid;gap:16px}.voice{min-height:325px;padding:26px 24px 21px;display:grid;justify-items:center;text-align:center;border-radius:24px;color:#fff;background:radial-gradient(ellipse at 52% 37%,#382e69 0%,#1f2547 45%,#141b34 75%);border:1px solid #303a61}.voice h1{margin:0;font-size:36px;letter-spacing:-.055em}.voice p{margin:2px 0;color:#dce1fb}.voice #status{min-height:24px;margin:8px 0 0;font-size:14px}.orb{display:grid;place-items:center;width:112px;height:112px;margin:16px 0;border-radius:39%;border:1px solid #c9c5ff;background:radial-gradient(at 72% 18%,#efd8ff 0%,transparent 50%),radial-gradient(at 16% 80%,#66c9e2,transparent 56%),#8f75ec;box-shadow:0 0 0 9px #a69dff1f,0 6px 34px #a89cff77}.bars{display:flex;align-items:center;gap:4px;height:40px}.bars span{width:4px;height:28px;transform:scaleY(.34);background:#30226f;border-radius:8px;transition:transform 150ms var(--ease-out);animation-delay:var(--delay,0ms)}.bars span:nth-child(2n){--delay:-180ms}.bars span:nth-child(3n){--delay:-360ms}.voice[data-state=listening] .bars span{animation:listen 900ms ease-in-out infinite;animation-delay:var(--delay,0ms)}.voice[data-state=speaking] .bars span{animation:speak 620ms ease-in-out infinite;animation-delay:var(--delay,0ms)}.voice[data-state=connecting] .bars span{transform:scaleY(.55)}
-@keyframes listen{50%{transform:scaleY(.63)}}@keyframes speak{50%{transform:scaleY(1.16)}}@media(prefers-reduced-motion:reduce){.bars span{transition:none!important;animation:none!important}.voice[data-state=speaking] .bars span{transform:scaleY(.9)}.voice[data-state=listening] .bars span{transform:scaleY(.6)}}
-.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.controls a{color:#e1dcff}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;min-width:0}.panel h2{font-size:20px;margin:0 0 6px;letter-spacing:-.025em}.muted{color:var(--muted)}.panel p{margin:4px 0 12px}.chat{max-height:280px;overflow:auto;min-height:91px;padding:4px 0}.bubble{padding:10px 14px;border-radius:14px;background:#eff0fc;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;max-width:94%;width:fit-content}.mine{margin-left:auto;background:#493ab0;color:white}.composer{display:flex;gap:8px;margin-top:10px}.composer input{width:100%;min-width:0;border:1px solid #b9c3d8;border-radius:12px;padding:11px 12px;color:var(--ink)}button{border:1px solid #c9cfe1;background:#fff;color:#312578;padding:8px 12px;border-radius:11px;cursor:pointer}button:disabled{opacity:.55;cursor:default}.primary{background:#5544bd;color:white;border-color:#5544bd}.voice .primary{background:#d9d3ff;border-color:#d9d3ff;color:#21174d}.voice .secondary{background:#252e54;color:#fff;border-color:#6b7399}.voice button[aria-pressed=true]{outline:1px solid #dad2ff}#prompt{margin-top:8px}#more{margin:4px 0 16px}article{border-top:1px solid var(--line);padding:12px 0}article p{color:var(--muted);margin:2px 0 8px}#bookings{border-top:1px solid var(--line);padding-top:9px;font-size:14px}dialog{border:1px solid var(--line);border-radius:17px;max-width:calc(100% - 32px);color:var(--ink)}dialog::backdrop{background:#141b3480}dialog h2{margin-top:0}
-@media(max-width:800px){main{grid-template-columns:1fr;padding:18px 14px}.top{padding:12px 14px}.voice{min-height:285px}.voice h1{font-size:32px}.panel{padding:15px}}
+:root{color-scheme:light;--canvas:#f5f3ed;--paper:#fffcf6;--ink:#202c27;--muted:#526159;--line:#d8ddd0;--forest:#17392f;--deep:#102d26;--mint:#ceef9b;--focus:#587d3d;--ease-out:cubic-bezier(.23,1,.32,1);--ease-flow:cubic-bezier(.77,0,.175,1);font-family:"Segoe UI",system-ui,sans-serif;font-size:16px}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--canvas);color:var(--ink);line-height:1.5}::selection{background:#d7edbd;color:#102d26}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:default}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:3px}button:not(:disabled):active{transform:scale(.97)}button{transition:transform 120ms var(--ease-out)}.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.bar{max-width:1290px;margin:auto;padding:20px 32px;min-height:75px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line)}.wordmark{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:750;letter-spacing:-.05em}.mark{width:31px;height:31px;border-radius:50%;background:var(--forest);display:grid;place-items:center}.mark i{display:block;width:11px;height:16px;border-radius:50%;background:var(--mint);transform:rotate(36deg)}.country{font-size:14px;color:var(--muted)}
+main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.82fr);gap:44px;max-width:1290px;margin:auto;padding:48px 32px 48px;align-items:start}.workspace{min-width:0}.workhead{display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:17px}h1,h2,p{margin:0}h1{font-size:clamp(32px,4.4vw,56px);line-height:1.04;letter-spacing:-.04em;font-weight:670}.mode{display:flex;gap:3px;padding:3px;border-radius:100px;background:#e9e9de;flex-shrink:0}.mode button{padding:6px 12px;border:0;border-radius:100px;background:transparent;color:#48584b;font-size:14px;font-weight:650}.mode button[aria-pressed=true]{background:var(--paper);color:#20382c;box-shadow:0 2px 5px #20382c20}
+.voice{min-height:518px;display:grid;align-content:center;justify-items:center;position:relative;isolation:isolate;overflow:hidden;padding:35px 20px;text-align:center;background:var(--deep);color:white;border-radius:28px}.voice::before{position:absolute;z-index:-1;inset:0;content:"";background:radial-gradient(ellipse at 50% 45%,#2d5645 0%,#19382e 40%,#102d26 72%)}.voice-person{display:grid;justify-items:center;gap:12px}.voice-name{font-size:26px;line-height:1.2;font-weight:660;letter-spacing:-.035em}.voice-hint{font-size:14px;color:#d0e0cf;min-height:22px}.visual{display:grid;place-items:center;position:relative;width:250px;max-width:70vw;height:250px;margin-bottom:9px}
+.orbit,.core,.wave{grid-area:1/1;will-change:transform}.orbit{width:82%;aspect-ratio:1;border:1px solid #9fc1a06b;border-radius:50%;transform:scale(.97);transition:opacity 220ms var(--ease-out),transform 220ms var(--ease-out)}.orbit.outer{width:96%;opacity:.52}.core{width:65%;aspect-ratio:1;border-radius:43% 57% 56% 44% / 49% 45% 55% 51%;background:radial-gradient(ellipse at 34% 19%,#eaf7c8 0%,#cae995 26%,transparent 57%),radial-gradient(ellipse at 70% 72%,#4f9674 0%,#72b68a 38%,#aada8c 70%);box-shadow:0 12px 25px #071e1380;border:1px solid #e4f3be;transform:rotate(-12deg);transition:transform 250ms var(--ease-out)}.wave{display:flex;gap:5px;align-items:center;justify-content:center;pointer-events:none;height:40px;color:#234836}.wave i{display:block;width:5px;height:var(--bar);border-radius:8px;background:currentColor;transform:scaleY(.58);transition:transform 170ms var(--ease-out);animation-delay:var(--delay,0ms)}.wave i:nth-child(1),.wave i:nth-child(7){--bar:13px;--delay:-320ms}.wave i:nth-child(2),.wave i:nth-child(6){--bar:24px;--delay:-220ms}.wave i:nth-child(3),.wave i:nth-child(5){--bar:35px;--delay:-110ms}.wave i:nth-child(4){--bar:42px}
+.voice[data-state=connecting] .core{transform:rotate(2deg) scale(.93)}.voice[data-state=listening] .orbit{animation:breathe 2.8s var(--ease-flow) infinite}.voice[data-state=speaking] .core{animation:speak-shape 2.4s var(--ease-flow) infinite}.voice[data-state=speaking] .wave i{animation:voice-bars 680ms ease-in-out infinite;animation-delay:var(--delay,0ms)}.voice[data-state=listening] .wave i{transform:scaleY(.86)}.voice[data-state=muted] .wave i{transform:scaleY(.22)}@keyframes breathe{50%{transform:scale(1.055);opacity:.78}}@keyframes speak-shape{50%{transform:rotate(7deg) scale(1.045)}}@keyframes voice-bars{50%{transform:scaleY(1.16)}}
+.controls{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:24px;flex-wrap:wrap}.action,.basic,.slot-action{min-height:44px;padding:9px 16px;border:1px solid transparent;border-radius:100px;font-weight:670}.action{color:#123221;background:var(--mint)}.basic{color:#254131;background:transparent;border-color:#aebcae}.voice .basic{color:#f2f7ec;border-color:#90aa925e;background:#234437}.voice .end{background:#f1c5ba;color:#4a221d;border-color:#f1c5ba}.quiet{margin:14px 0 0;min-height:22px}.quiet button{border:0;background:none;text-decoration:underline;text-underline-offset:4px;color:#d1e0d3;font-size:14px;padding:5px 10px}.problem{color:#ffe0d7;font-size:14px;max-width:42ch;margin-top:12px}.disclosure{font-size:14px;color:var(--muted);margin-top:13px}
+.aside{min-width:0}.aside h2,.chat-panel h2{font-size:24px;letter-spacing:-.035em;line-height:1.2}.side-head{display:flex;justify-content:space-between;align-items:center;min-height:40px;margin-bottom:16px;gap:12px}.side-head select{max-width:145px;padding:7px 8px;background:var(--paper);border:1px solid #b9c6b7;border-radius:9px;color:#314537;font-size:14px}.directory{border-top:1px solid #b6c2b2}.directory article{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)}.directory strong{display:block;font-size:16px}.directory article p{color:var(--muted);font-size:14px;margin-top:2px}.slot-action{background:var(--paper);color:#284634;border-color:#bccab7;font-size:14px;max-width:145px}.directory>p,.directory:empty{padding:15px 0}.more{display:block;margin:14px 0}.appointments{margin-top:32px;padding-top:18px;border-top:1px solid #b6c2b2}.appointments h2{font-size:20px;margin-bottom:8px}.bookings{color:var(--muted);font-size:14px}.bookings p{margin:8px 0}
+.chat-panel{min-height:518px;border:1px solid var(--line);border-radius:24px;background:var(--paper);padding:22px;display:flex;flex-direction:column;gap:14px}.chat{min-height:260px;max-height:420px;overflow:auto;flex:1;scrollbar-color:#b5c3b2 transparent}.bubble{max-width:88%;width:fit-content;margin:9px 0;padding:10px 14px;background:#e9efe3;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.mine{margin-left:auto;background:var(--forest);color:#fff}.prompt{align-self:flex-start;font-size:14px}.composer{display:flex;gap:8px}.composer input{flex:1;min-width:0;padding:10px 13px;border:1px solid #aebcae;border-radius:12px;background:white;color:var(--ink);caret-color:#28593a}.composer .action{background:var(--forest);color:#fff}.chat-notice{font-size:14px;color:var(--muted)}dialog{border:1px solid var(--line);border-radius:21px;max-width:calc(100% - 32px);background:var(--paper);color:var(--ink);padding:24px;box-shadow:0 14px 45px #162b2440}dialog::backdrop{background:#102a2199}dialog p{margin:10px 0 18px}dialog .action{background:var(--forest);color:white}
+@media(max-width:900px){main{gap:24px;padding-top:28px}.voice{min-height:450px}.visual{width:213px}}
+@media(max-width:680px){.bar{padding:14px 17px;min-height:58px}main{grid-template-columns:1fr;padding:24px 16px;gap:28px}.workhead{align-items:center}.voice{min-height:407px;border-radius:22px;padding:22px 14px}.visual{width:193px}.chat-panel{min-height:410px;padding:16px}.chat{min-height:205px}.side-head{margin-bottom:10px}.appointments{margin-top:23px}.mode button{padding:6px 9px}}
+@media(prefers-reduced-motion:reduce){button,.orbit,.core,.wave i{transition:none!important;animation:none!important}.voice[data-state=speaking] .wave i{transform:scaleY(1)}}
 </style>
 </head>
 <body>
-<header><div class="top"><div class="brand"><span class="mark" aria-hidden="true">✦</span>Lía</div><span class="tag">Citas médicas · República Dominicana</span></div></header>
+<header class="bar"><div class="wordmark"><span class="mark" aria-hidden="true"><i></i></span>Lía</div><div class="country">República Dominicana</div></header>
 <main>
-<div class="left">
-<section class="voice" id="voice-stage" data-state="idle" aria-labelledby="voice-title">
-<h1 id="voice-title">Habla con Lía</h1>
-<p>Encuentra un médico y elige un turno de prueba.</p>
-<div class="orb" aria-hidden="true"><div class="bars"><span></span><span></span><span></span><span></span><span></span></div></div>
-<div class="controls" id="voice-controls">
-<button id="live" type="button" class="primary" aria-pressed="false">Iniciar voz en vivo</button>
-<button id="live-mic" type="button" class="secondary" aria-pressed="false" hidden>Activar micrófono</button>
-<button id="mic" type="button" class="secondary" aria-pressed="false">Voz por turnos</button>
+<div class="workspace"><div class="workhead"><h1>Habla con Lía</h1><div class="mode" aria-label="Modo de conversación"><button id="voice-mode" type="button" aria-pressed="true">Voz</button><button id="text-mode" type="button" aria-pressed="false">Escribir</button></div></div>
+<section class="voice" id="voice-stage" data-state="idle" aria-label="Lía, asistente de voz">
+<div class="voice-person">
+<div class="visual" aria-hidden="true"><span class="orbit outer"></span><span class="orbit"></span><span class="core"></span><span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+<h2 class="voice-name">Lía</h2>
+<p id="voice-hint" class="voice-hint">Encuentra un médico por voz.</p>
 </div>
-<p id="status" role="status"></p>
+<div class="controls"><button id="live" class="action" type="button" aria-pressed="false">Empezar a hablar</button><button id="live-mic" class="basic" type="button" aria-pressed="false" hidden>Activar micrófono</button></div>
+<div class="quiet"><button id="mic" type="button" aria-pressed="false">Voz por turnos</button></div>
+<p id="voice-error" class="problem" role="alert" hidden></p>
 </section>
-<section class="panel" aria-labelledby="chat-title">
-<h2 id="chat-title">Conversación</h2><p class="muted">Usa únicamente casos ficticios.</p>
-<div class="chat" id="chat" role="log" aria-label="Mensajes de Lía"></div>
-<button id="prompt" type="button">Dermatología en Santiago</button>
-<form class="composer"><input id="message" aria-label="Tu mensaje" placeholder="Escribe tu mensaje" maxlength="1200" required><button class="primary" id="send">Enviar</button></form>
+<section class="chat-panel" id="text-panel" aria-label="Chat escrito" hidden>
+<div id="chat" class="chat" role="log" aria-label="Conversación con Lía"></div>
+<button id="prompt" class="basic prompt" type="button">Dermatología en Santiago</button>
+<form class="composer"><input id="message" aria-label="Tu mensaje" placeholder="Escribe a Lía" maxlength="1200" required><button id="send" class="action">Enviar</button></form>
+<p id="chat-notice" class="chat-notice" hidden></p>
 </section>
+<p id="status" class="sr" role="status"></p>
+<p class="disclosure">Demostración con médicos y citas ficticias.</p>
 </div>
-<section class="panel" aria-labelledby="directory-title">
-<h2 id="directory-title">Directorio de prueba</h2>
-<div id="slots"></div><button id="more" type="button" hidden>Ver más médicos</button>
-<h2>Mis citas</h2><div id="bookings"></div>
-</section>
+<aside class="aside">
+<div class="side-head"><h2>Médicos</h2><label class="sr" for="province">Provincia</label><select id="province"><option value="">Provincia</option></select></div>
+<div class="directory" id="slots"></div><button id="more" class="basic more" type="button" hidden>Ver más médicos</button>
+<section class="appointments"><h2>Mis citas</h2><div id="bookings" class="bookings"></div></section>
+</aside>
 </main>
-<dialog id="confirm"><h2>Confirmar cita de prueba</h2><p id="summary"></p><button id="dismiss">Volver</button> <button id="book" class="primary">Confirmar cita</button></dialog>
-
+<dialog id="confirm"><h2>Confirmar cita de prueba</h2><p id="summary"></p><button id="dismiss" class="basic">Volver</button> <button id="book" class="action">Confirmar cita</button></dialog>
 <script type="module">
 const byId = id => document.getElementById(id);
 const chat = byId('chat'), input = byId('message'), status = byId('status');
@@ -57,6 +65,44 @@ let bookings = [];
 const publicDirectory = [{"id":"g1","name":"Dra. Sara Lima","specialty":"Medicina general","zone":"La Vega","rating":4.9,"time":"Mañana 10:00"},{"id":"g2","name":"Dr. Bruno Soto","specialty":"Medicina general","zone":"Santo Domingo","rating":4.6,"time":"Mañana 11:30"},{"id":"g3","name":"Dra. Valeria Pinto","specialty":"Medicina general","zone":"La Vega","rating":4.7,"time":"Mañana 15:00"},{"id":"g4","name":"Dr. Nicolás Reyes","specialty":"Medicina general","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"d1","name":"Dra. Elena Paz","specialty":"Dermatología","zone":"Santiago","rating":4.8,"time":"Mañana 15:00"},{"id":"d2","name":"Dr. Mateo Ríos","specialty":"Dermatología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 17:00"},{"id":"d3","name":"Dra. Lucía Montes","specialty":"Dermatología","zone":"La Vega","rating":4.8,"time":"Mañana 17:00"},{"id":"p1","name":"Dra. Inés Flores","specialty":"Pediatría","zone":"La Vega","rating":4.7,"time":"Mañana 15:00"},{"id":"p2","name":"Dr. Tomás Vera","specialty":"Pediatría","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"p3","name":"Dra. Paula Serrano","specialty":"Pediatría","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"o1","name":"Dr. Gabriel Solís","specialty":"Otorrinolaringología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"o2","name":"Dra. Julia León","specialty":"Otorrinolaringología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"o3","name":"Dr. Daniel Prado","specialty":"Otorrinolaringología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"t1","name":"Dra. Clara Molina","specialty":"Traumatología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"t2","name":"Dr. Martín Arias","specialty":"Traumatología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"t3","name":"Dra. Renata Vega","specialty":"Traumatología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"v1","name":"Dra. Sofía Peralta","specialty":"Oftalmología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"v2","name":"Dr. Adrián Salas","specialty":"Oftalmología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"v3","name":"Dra. Eva Durán","specialty":"Oftalmología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"u1","name":"Dr. Emilio Rocha","specialty":"Urología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"u2","name":"Dra. Mara Acosta","specialty":"Urología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"u3","name":"Dr. Iván Funes","specialty":"Urología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"gy1","name":"Dra. Alba Quiroga","specialty":"Ginecología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"gy2","name":"Dra. Iris Aguilar","specialty":"Ginecología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"gy3","name":"Dr. Luis Paredes","specialty":"Ginecología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"ga1","name":"Dra. Teresa Cárdenas","specialty":"Gastroenterología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"ga2","name":"Dr. Simón Castro","specialty":"Gastroenterología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"ga3","name":"Dra. Nora Rojas","specialty":"Gastroenterología","zone":"Santiago","rating":4.5,"time":"Mañana 15:00"},{"id":"n1","name":"Dr. Julián Roca","specialty":"Neurología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"n2","name":"Dra. Laura Marín","specialty":"Neurología","zone":"Santiago","rating":4.5,"time":"Mañana 15:00"}];
 const apiOrigin = "https://lia-api.enyermorales57.workers.dev";
 const voiceStage = byId('voice-stage');
+const hint = byId('voice-hint');
+const voiceError = byId('voice-error');
+const chatNotice = byId('chat-notice');
+const province = byId('province');
+const voiceLabels = {
+  idle:'Encuentra un médico por voz.',
+  connecting:'Un momento…',
+  listening:'Te escucho',
+  speaking:'Lía está hablando',
+  muted:'Micrófono apagado',
+  thinking:'Preparando respuesta…'
+};
+
+function voiceState(state) {
+  voiceStage.dataset.state = state;
+  hint.textContent = voiceLabels[state];
+}
+
+function showProblem(message = '') {
+  for (const node of [voiceError,chatNotice]) {
+    node.textContent = message;
+    node.hidden = !message;
+  }
+}
+
+function showMode(voice) {
+  if (!voice) {
+    if (voiceActive) stopVoice();
+    if (liveSession?.stream) liveMic.click();
+  }
+  voiceStage.hidden = !voice;
+  byId('text-panel').hidden = voice;
+  byId('voice-mode').setAttribute('aria-pressed',String(voice));
+  byId('text-mode').setAttribute('aria-pressed',String(!voice));
+  if (!voice) input.focus();
+}
+byId('voice-mode').onclick = () => showMode(true);
+byId('text-mode').onclick = () => showMode(false);
 
 function apiFetch(path, options) {
   return fetch(apiOrigin ? new URL(path,apiOrigin) : path,options);
@@ -74,21 +120,30 @@ function label(slot) { return slot.name + ' · ' + slot.specialty + ' · ' + slo
 function render(ids) {
   const list = byId('slots');
   list.replaceChildren();
-  const visible = ids ? ids.map(id => slots.find(slot => slot.id === id)).filter(Boolean) : slots;
+  const matches = ids ? ids.map(id => slots.find(slot => slot.id === id)).filter(Boolean) : slots;
+  const visible = matches.filter(slot => !province.value || slot.zone === province.value);
   for (const slot of visible.slice(0,limit)) {
     const article = document.createElement('article');
+    const detail = document.createElement('div');
     const title = document.createElement('strong');
     title.textContent = slot.name;
     const meta = document.createElement('p');
     meta.textContent = slot.specialty + ' · ' + slot.zone + ' · ' + slot.rating + ' ★';
     const button = document.createElement('button');
-    button.textContent = bookings.includes(slot.id) ? 'Reservado en esta demo' : 'Elegir ' + slot.time;
+    button.className = 'slot-action';
+    button.textContent = bookings.includes(slot.id) ? 'Reservado' : slot.time;
+    button.setAttribute('aria-label','Elegir '+slot.time+' con '+slot.name);
     button.disabled = bookings.includes(slot.id);
     button.onclick = () => choose(slot);
-    article.append(title, meta, button);
+    detail.append(title,meta);
+    article.append(detail,button);
     list.append(article);
   }
-  if (!visible.length) list.textContent = 'Sin turnos para esta búsqueda.';
+  if (!visible.length) {
+    const empty = document.createElement('p');
+    empty.textContent = urgent ? 'Busca atención de urgencias de inmediato.' : 'No hay turnos para esta búsqueda.';
+    list.append(empty);
+  }
   byId('more').hidden = visible.length <= limit;
   const booked = byId('bookings');
   booked.replaceChildren();
@@ -100,6 +155,17 @@ function render(ids) {
   if (!booked.childElementCount) booked.textContent = 'Todavía no tienes citas de prueba.';
 }
 byId('more').onclick = () => { limit += 6; render(matching); };
+province.onchange = () => { limit = 6; if (!urgent) matching = undefined; render(matching); };
+function loadDirectory(data) {
+  slots = data;
+  const provinces = [...new Set(data.map(slot=>slot.zone))].sort((a,b)=>a.localeCompare(b,'es-DO'));
+  for (const name of provinces) {
+    const option = document.createElement('option');
+    option.value = option.textContent = name;
+    province.append(option);
+  }
+  render(matching);
+}
 function choose(slot) {
   if (urgent || bookings.includes(slot.id)) return;
   selected = slot;
@@ -119,10 +185,9 @@ function book() {
 byId('book').onclick = book;
 bubble('Hola, soy Lía. Cuéntame qué sientes en un caso ficticio o qué médico te gustaría buscar.');
 if (publicDirectory) {
-  slots = publicDirectory;
-  render();
+  loadDirectory(publicDirectory);
 } else {
-  fetch('/api/slots').then(r => r.json()).then(data => { slots = data; render(matching); }).catch(() => { status.textContent = 'No se pudieron cargar los turnos.'; });
+  fetch('/api/slots').then(r => r.json()).then(loadDirectory).catch(() => showProblem('No se pudieron cargar los turnos. Recarga la página.'));
 }
 byId('prompt').onclick = () => { input.value = 'Busca dermatología en Santiago'; input.focus(); };
 const AudioOutput = window.AudioContext || window.webkitAudioContext;
@@ -148,8 +213,10 @@ function stopVoice(message = '') {
   micStream = undefined;
   speechRequest?.abort();
   audioSource?.stop();
-  mic.textContent = 'Iniciar conversación de voz';
+  mic.textContent = 'Voz por turnos';
   mic.setAttribute('aria-pressed','false');
+  voiceState('idle');
+  showProblem(message === 'Conversación de voz terminada.' ? '' : message);
   status.textContent = message;
 }
 
@@ -183,6 +250,7 @@ async function toWav(blob) {
 async function transcribeTurn(blob) {
   const controller = new AbortController();
   transcription = controller;
+  voiceState('thinking');
   status.textContent = 'Lía está escuchando tu mensaje…';
   try {
     const wav = await toWav(blob);
@@ -224,6 +292,7 @@ function listenForTurn() {
       }
     };
     capture.start();
+    voiceState('listening');
     status.textContent = 'Te escucho…';
     meter = setInterval(() => {
       const now = performance.now();
@@ -249,7 +318,9 @@ mic.onclick = async () => {
     return;
   }
   voiceActive = true;
-  mic.textContent = 'Terminar conversación de voz';
+  showProblem();
+  voiceState('connecting');
+  mic.textContent = 'Terminar voz por turnos';
   mic.setAttribute('aria-pressed','true');
   mic.disabled = true;
   try {
@@ -291,6 +362,7 @@ async function speak(reply) {
     audioSource = audioContext.createBufferSource();
     audioSource.buffer = buffer;
     audioSource.connect(audioContext.destination);
+    voiceState('speaking');
     status.textContent = 'Lía está hablando…';
     await new Promise(resolve => {
       audioSource.onended = resolve;
@@ -308,6 +380,7 @@ async function speak(reply) {
 async function sendMessage(message) {
   if (!message || busy) return;
   busy = true;
+  showProblem();
   send.disabled = true;
   stopCapture();
   bubble(message,true);
@@ -360,6 +433,7 @@ async function sendMessage(message) {
     if (dialog.open) dialog.close();
     const slot = slots.find(item => item.id === result.selectedId && !bookings.includes(item.id));
     matching = slot ? [slot.id] : result.ids;
+    if (matching?.length) province.value = '';
     limit = 6;
     render(matching);
     const reply = slot && !urgent ? 'Tengo este turno de prueba: ' + label(slot) + '. Di «confirmar cita» o pulsa Confirmar cita.' : result.reply;
@@ -370,6 +444,7 @@ async function sendMessage(message) {
     if (result.mode !== 'demo') await speak(reply);
   } catch (error) {
     status.textContent = error.message || 'No se pudo enviar el mensaje.';
+    showProblem('No pude enviar el mensaje. Intenta de nuevo.');
     if (!voiceActive && !input.value) input.value = message;
   } finally {
     busy = false;
@@ -394,7 +469,8 @@ liveButton.disabled = !AudioOutput || !window.WebSocket;
 if (publicDirectory && !apiOrigin) {
   mic.hidden = true;
   liveButton.hidden = true;
-  status.textContent = 'Vista de directorio. La voz necesita una API configurada.';
+  showMode(false);
+  byId('voice-mode').disabled = true;
 }
 
 const liveTools = [
@@ -430,13 +506,15 @@ function closeLive(message = '') {
   session.socket?.close();
   releaseLiveMicrophone(session);
   for (const node of session.playback) node.stop();
-  liveButton.textContent = 'Iniciar voz en vivo';
+  liveButton.textContent = 'Empezar a hablar';
+  liveButton.classList.remove('end');
   liveButton.setAttribute('aria-pressed','false');
   liveMic.hidden = true;
   liveMic.disabled = false;
   liveMic.textContent = 'Activar micrófono';
   liveMic.setAttribute('aria-pressed','false');
-  voiceStage.dataset.state = 'idle';
+  voiceState('idle');
+  showProblem(message);
   status.textContent = message;
 }
 
@@ -457,14 +535,14 @@ function playLive(session, encoded) {
     session.playback.delete(node);
     node.disconnect();
     if (liveSession === session && !session.playback.size) {
-      voiceStage.dataset.state = session.stream ? 'listening' : 'idle';
+      voiceState(session.stream ? 'listening' : 'muted');
       status.textContent = session.stream ? 'Te escucho…' : 'Micrófono apagado. Puedes escribir.';
     }
   };
   session.playback.add(node);
   const start = Math.max(audioContext.currentTime+.025,session.nextAudio);
   node.start(start);
-  voiceStage.dataset.state = 'speaking';
+  voiceState('speaking');
   status.textContent = 'Lía está hablando…';
   session.nextAudio = start + clip.duration;
 }
@@ -489,6 +567,7 @@ function resolveLiveTool(call) {
       && (horario !== 'mañana' || Number(slot.time.slice(-5,-3)) < 12)
       && (horario !== 'tarde' || Number(slot.time.slice(-5,-3)) >= 12)).slice(0,3);
     matching = results.map(slot=>slot.id);
+    if (matching.length) province.value = '';
     render(matching);
     return {turnos:results};
   }
@@ -503,7 +582,8 @@ function resolveLiveTool(call) {
 
 async function startLiveMicrophone(session) {
   if (!navigator.mediaDevices?.getUserMedia || !audioContext.audioWorklet || !window.AudioWorkletNode) {
-    status.textContent = 'Gemini Live conectado. Puedes escribir o abrir la demo en un navegador con micrófono.';
+    voiceState('muted');
+    showProblem('No puedo acceder al micrófono. Puedes escribir a Lía.');
     return;
   }
   liveMic.disabled = true;
@@ -539,11 +619,15 @@ async function startLiveMicrophone(session) {
     session.muted = muted;
     liveMic.textContent = 'Silenciar micrófono';
     liveMic.setAttribute('aria-pressed','true');
-    voiceStage.dataset.state = 'listening';
-    status.textContent = 'Gemini Live conectado. Te escucho…';
+    showProblem();
+    voiceState('listening');
+    status.textContent = 'Te escucho.';
   } catch {
     releaseLiveMicrophone(session);
-    if (liveSession === session) status.textContent = 'Gemini Live conectado. Permite el micrófono o escribe para probar la voz.';
+    if (liveSession === session) {
+      voiceState('muted');
+      showProblem('Permite el micrófono en tu navegador o escribe a Lía.');
+    }
   } finally {
     if (liveSession === session) liveMic.disabled = false;
   }
@@ -557,7 +641,7 @@ liveMic.onclick = () => {
     sendLive(session,{realtimeInput:{audioStreamEnd:true}});
     liveMic.textContent = 'Activar micrófono';
     liveMic.setAttribute('aria-pressed','false');
-    if (!session.playback.size) voiceStage.dataset.state = 'idle';
+    if (!session.playback.size) voiceState('muted');
     status.textContent = 'Micrófono silenciado. Puedes seguir escribiendo.';
   } else {
     void startLiveMicrophone(session);
@@ -571,8 +655,8 @@ async function receiveLive(session, event) {
     clearTimeout(session.timeout);
     session.ready = true;
     liveMic.hidden = false;
-    voiceStage.dataset.state = 'idle';
-    status.textContent = liveTextOnly ? 'Gemini Live conectado. Escribe para escuchar la respuesta.' : 'Gemini Live conectado. Preparando micrófono…';
+    voiceState(liveTextOnly ? 'muted' : 'connecting');
+    status.textContent = '';
     if (!liveTextOnly) void startLiveMicrophone(session);
   }
   const content = payload.serverContent;
@@ -580,7 +664,7 @@ async function receiveLive(session, event) {
     for (const node of session.playback) node.stop();
     session.playback.clear();
     session.nextAudio = 0;
-    voiceStage.dataset.state = session.stream ? 'listening' : 'idle';
+    voiceState(session.stream ? 'listening' : 'muted');
   }
   if (content?.inputTranscription?.text) session.input += content.inputTranscription.text;
   if (content?.outputTranscription?.text) session.output += content.outputTranscription.text;
@@ -599,13 +683,13 @@ async function receiveLive(session, event) {
     }));
     sendLive(session,{toolResponse:{functionResponses}});
   }
-  if (payload.goAway) status.textContent = 'La sesión Live está por terminar. Puedes iniciar otra.';
-  if (payload.error) closeLive('Gemini Live devolvió un error de conexión.');
+  if (payload.goAway) showProblem('La llamada está por terminar. Puedes volver a empezar.');
+  if (payload.error) closeLive('Se interrumpió la llamada. Intenta de nuevo.');
 }
 
 liveButton.onclick = async () => {
   if (liveSession) {
-    closeLive('Sesión de Gemini Live terminada.');
+    closeLive();
     return;
   }
   if (voiceActive) stopVoice();
@@ -615,9 +699,11 @@ liveButton.onclick = async () => {
   const session = {playback:new Set(),nextAudio:0,input:'',output:''};
   liveSession = session;
   liveButton.setAttribute('aria-pressed','true');
-  liveButton.textContent = 'Terminar voz en vivo';
-  voiceStage.dataset.state = 'connecting';
-  status.textContent = 'Conectando con Gemini Live…';
+  liveButton.textContent = 'Terminar llamada';
+  liveButton.classList.add('end');
+  showProblem();
+  voiceState('connecting');
+  status.textContent = 'Un momento.';
   try {
     audioContext ??= new AudioOutput();
     await audioContext.resume();
@@ -628,7 +714,7 @@ liveButton.onclick = async () => {
     const url = new URL('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained');
     url.searchParams.set('access_token',data.token);
     session.socket = new WebSocket(url);
-    session.timeout = setTimeout(()=>closeLive('Gemini Live no completó la conexión.'),12000);
+    session.timeout = setTimeout(()=>closeLive('No se pudo iniciar la llamada. Intenta de nuevo.'),12000);
     session.socket.onopen = () => sendLive(session,{setup:{
       model:'models/gemini-3.8-live',
       generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:'Sulafat'}}}},
@@ -638,15 +724,16 @@ liveButton.onclick = async () => {
     }});
     session.socket.onmessage = event => {
       session.queue = (session.queue ?? Promise.resolve()).then(()=>receiveLive(session,event))
-        .catch(()=>{if(liveSession === session) closeLive('No se pudo procesar la respuesta de Gemini Live.');});
+        .catch(()=>{if(liveSession === session) closeLive('No pude reproducir la respuesta. Intenta de nuevo.');});
     };
     session.socket.onclose = event => {
-      if (liveSession === session) closeLive('Gemini Live se desconectó (código '+event.code+'). Puedes volver a iniciar.');
+      if (liveSession === session) closeLive('La llamada se interrumpió. Puedes volver a empezar.');
     };
   } catch (error) {
-    if (liveSession === session) closeLive(error.message || 'No se pudo iniciar Gemini Live.');
+    if (liveSession === session) closeLive('No se pudo iniciar la llamada. Intenta de nuevo o escribe a Lía.');
   }
 };
 mic.addEventListener('click',()=>{ if (liveSession) closeLive(); },{capture:true});
 window.addEventListener('pagehide',()=>closeLive());
 </script></body></html>
+
