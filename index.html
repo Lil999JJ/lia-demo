@@ -1,6 +1,50 @@
-<!doctype html><html lang="es-DO"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lía · Citas médicas</title><style>
-*{box-sizing:border-box}body{margin:0;background:#eef3f1;color:#16352d;font:16px system-ui,sans-serif}header{background:#153d34;color:white;padding:20px max(24px,calc((100vw - 980px)/2));white-space:nowrap;font-weight:750}header small{font-weight:400;margin-left:12px;color:#bbd9cf}main{max-width:1030px;margin:auto;padding:36px 24px;display:grid;grid-template-columns:1.6fr 1fr;gap:20px}section{background:white;border:1px solid #dbe6e0;border-radius:22px;padding:24px}h1{font-size:34px;letter-spacing:-1.5px;margin:0}h2{font-size:20px;margin:0 0 12px}p{line-height:1.5;margin:8px 0 16px}.muted{color:#48665d}.chat{max-height:360px;overflow:auto;min-height:155px;padding:4px 0}.bubble{padding:12px 15px;border-radius:15px;background:#e7f3ed;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;max-width:94%}.mine{margin-left:auto;background:#163f35;color:white;width:fit-content}button,input{font:inherit}button{border:1px solid #bcd4ca;background:#f3f9f6;color:#153d34;padding:9px 12px;border-radius:12px;cursor:pointer}button:disabled{opacity:.55;cursor:default}.primary{background:#15654f;color:white;border-color:#15654f}form{display:flex;gap:8px;margin:14px 0}input{min-width:0;flex:1;border:1px solid #bcd4ca;border-radius:12px;padding:11px}article{border-top:1px solid #dbe6e0;padding:14px 0}article p{margin:4px 0 8px}dialog{border:1px solid #bcd4ca;border-radius:18px;max-width:calc(100% - 32px)}dialog::backdrop{background:#153d3470}#prompt{margin-top:8px}#more{margin-bottom:18px}#mic[aria-pressed=true]{border-color:#15654f;background:#e2f3eb}@media(max-width:720px){main{grid-template-columns:1fr;padding:18px 12px}section{padding:16px}form{flex-wrap:wrap}}
-</style><header>Lía <small>· Citas médicas</small></header><main><section><h1>Habla con Lía</h1><p class="muted">Usa casos ficticios. Lía te ayuda a encontrar médicos y reservar citas de prueba.</p><div class="chat" id="chat" role="log" aria-label="Conversación"></div><button id="prompt" type="button">Dermatología por la tarde</button><form><input id="message" aria-label="Tu mensaje" placeholder="Escribe tu mensaje" maxlength="1200" required><button class="primary" id="send">Enviar</button></form><button id="mic" type="button" aria-pressed="false">Iniciar conversación de voz</button> <button id="live" type="button" aria-pressed="false">Iniciar Gemini Live</button> <button id="live-mic" type="button" aria-pressed="false" hidden>Activar micrófono</button><p class="muted" id="status" role="status"></p></section><section><h2>Directorio de prueba · República Dominicana</h2><div id="slots"></div><button id="more" type="button" hidden>Ver más médicos</button><h2>Mis citas</h2><div id="bookings"></div></section></main><dialog id="confirm"><h2>Confirmar cita de prueba</h2><p id="summary"></p><button id="dismiss">Volver</button> <button id="book" class="primary">Confirmar cita</button></dialog>
+<!doctype html>
+<html lang="es-DO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#141b34">
+<title>Lía · Citas médicas</title>
+<style>
+:root{color-scheme:light;--paper:#f2f4fb;--ink:#17213b;--muted:#56617a;--line:#dce2ee;--accent:#5140ba;--ease-out:cubic-bezier(.23,1,.32,1)}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,sans-serif}button,input{font:inherit}button,a,input{touch-action:manipulation}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7567ee;outline-offset:3px}[hidden]{display:none!important}
+header{background:#fff;border-bottom:1px solid var(--line)}.top{max-width:1200px;margin:auto;padding:16px 26px;display:flex;justify-content:space-between;align-items:center;gap:14px}.brand{display:flex;align-items:center;gap:11px;font-weight:780;font-size:21px}.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#e8e4ff;color:#4939b0}.tag{font-size:14px;color:var(--muted)}
+main{max-width:1200px;margin:auto;padding:30px 26px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:22px;align-items:start}.left{min-width:0;display:grid;gap:16px}.voice{min-height:325px;padding:26px 24px 21px;display:grid;justify-items:center;text-align:center;border-radius:24px;color:#fff;background:radial-gradient(ellipse at 52% 37%,#382e69 0%,#1f2547 45%,#141b34 75%);border:1px solid #303a61}.voice h1{margin:0;font-size:36px;letter-spacing:-.055em}.voice p{margin:2px 0;color:#dce1fb}.voice #status{min-height:24px;margin:8px 0 0;font-size:14px}.orb{display:grid;place-items:center;width:112px;height:112px;margin:16px 0;border-radius:39%;border:1px solid #c9c5ff;background:radial-gradient(at 72% 18%,#efd8ff 0%,transparent 50%),radial-gradient(at 16% 80%,#66c9e2,transparent 56%),#8f75ec;box-shadow:0 0 0 9px #a69dff1f,0 6px 34px #a89cff77}.bars{display:flex;align-items:center;gap:4px;height:40px}.bars span{width:4px;height:28px;transform:scaleY(.34);background:#30226f;border-radius:8px;transition:transform 150ms var(--ease-out);animation-delay:var(--delay,0ms)}.bars span:nth-child(2n){--delay:-180ms}.bars span:nth-child(3n){--delay:-360ms}.voice[data-state=listening] .bars span{animation:listen 900ms ease-in-out infinite;animation-delay:var(--delay,0ms)}.voice[data-state=speaking] .bars span{animation:speak 620ms ease-in-out infinite;animation-delay:var(--delay,0ms)}.voice[data-state=connecting] .bars span{transform:scaleY(.55)}
+@keyframes listen{50%{transform:scaleY(.63)}}@keyframes speak{50%{transform:scaleY(1.16)}}@media(prefers-reduced-motion:reduce){.bars span{transition:none!important;animation:none!important}.voice[data-state=speaking] .bars span{transform:scaleY(.9)}.voice[data-state=listening] .bars span{transform:scaleY(.6)}}
+.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.controls a{color:#e1dcff}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;min-width:0}.panel h2{font-size:20px;margin:0 0 6px;letter-spacing:-.025em}.muted{color:var(--muted)}.panel p{margin:4px 0 12px}.chat{max-height:280px;overflow:auto;min-height:91px;padding:4px 0}.bubble{padding:10px 14px;border-radius:14px;background:#eff0fc;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;max-width:94%;width:fit-content}.mine{margin-left:auto;background:#493ab0;color:white}.composer{display:flex;gap:8px;margin-top:10px}.composer input{width:100%;min-width:0;border:1px solid #b9c3d8;border-radius:12px;padding:11px 12px;color:var(--ink)}button{border:1px solid #c9cfe1;background:#fff;color:#312578;padding:8px 12px;border-radius:11px;cursor:pointer}button:disabled{opacity:.55;cursor:default}.primary{background:#5544bd;color:white;border-color:#5544bd}.voice .primary{background:#d9d3ff;border-color:#d9d3ff;color:#21174d}.voice .secondary{background:#252e54;color:#fff;border-color:#6b7399}.voice button[aria-pressed=true]{outline:1px solid #dad2ff}#prompt{margin-top:8px}#more{margin:4px 0 16px}article{border-top:1px solid var(--line);padding:12px 0}article p{color:var(--muted);margin:2px 0 8px}#bookings{border-top:1px solid var(--line);padding-top:9px;font-size:14px}dialog{border:1px solid var(--line);border-radius:17px;max-width:calc(100% - 32px);color:var(--ink)}dialog::backdrop{background:#141b3480}dialog h2{margin-top:0}
+@media(max-width:800px){main{grid-template-columns:1fr;padding:18px 14px}.top{padding:12px 14px}.voice{min-height:285px}.voice h1{font-size:32px}.panel{padding:15px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="brand"><span class="mark" aria-hidden="true">✦</span>Lía</div><span class="tag">Citas médicas · República Dominicana</span></div></header>
+<main>
+<div class="left">
+<section class="voice" id="voice-stage" data-state="idle" aria-labelledby="voice-title">
+<h1 id="voice-title">Habla con Lía</h1>
+<p>Encuentra un médico y elige un turno de prueba.</p>
+<div class="orb" aria-hidden="true"><div class="bars"><span></span><span></span><span></span><span></span><span></span></div></div>
+<div class="controls" id="voice-controls">
+<button id="live" type="button" class="primary" aria-pressed="false">Iniciar voz en vivo</button>
+<button id="live-mic" type="button" class="secondary" aria-pressed="false" hidden>Activar micrófono</button>
+<button id="mic" type="button" class="secondary" aria-pressed="false">Voz por turnos</button>
+</div>
+<p id="status" role="status"></p>
+</section>
+<section class="panel" aria-labelledby="chat-title">
+<h2 id="chat-title">Conversación</h2><p class="muted">Usa únicamente casos ficticios.</p>
+<div class="chat" id="chat" role="log" aria-label="Mensajes de Lía"></div>
+<button id="prompt" type="button">Dermatología en Santiago</button>
+<form class="composer"><input id="message" aria-label="Tu mensaje" placeholder="Escribe tu mensaje" maxlength="1200" required><button class="primary" id="send">Enviar</button></form>
+</section>
+</div>
+<section class="panel" aria-labelledby="directory-title">
+<h2 id="directory-title">Directorio de prueba</h2>
+<div id="slots"></div><button id="more" type="button" hidden>Ver más médicos</button>
+<h2>Mis citas</h2><div id="bookings"></div>
+</section>
+</main>
+<dialog id="confirm"><h2>Confirmar cita de prueba</h2><p id="summary"></p><button id="dismiss">Volver</button> <button id="book" class="primary">Confirmar cita</button></dialog>
+
 <script type="module">
 const byId = id => document.getElementById(id);
 const chat = byId('chat'), input = byId('message'), status = byId('status');
@@ -11,6 +55,49 @@ let voiceActive = false, audioContext, audioSource, speechRequest;
 let urgent = false;
 let bookings = [];
 const publicDirectory = [{"id":"g1","name":"Dra. Sara Lima","specialty":"Medicina general","zone":"La Vega","rating":4.9,"time":"Mañana 10:00"},{"id":"g2","name":"Dr. Bruno Soto","specialty":"Medicina general","zone":"Santo Domingo","rating":4.6,"time":"Mañana 11:30"},{"id":"g3","name":"Dra. Valeria Pinto","specialty":"Medicina general","zone":"La Vega","rating":4.7,"time":"Mañana 15:00"},{"id":"g4","name":"Dr. Nicolás Reyes","specialty":"Medicina general","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"d1","name":"Dra. Elena Paz","specialty":"Dermatología","zone":"Santiago","rating":4.8,"time":"Mañana 15:00"},{"id":"d2","name":"Dr. Mateo Ríos","specialty":"Dermatología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 17:00"},{"id":"d3","name":"Dra. Lucía Montes","specialty":"Dermatología","zone":"La Vega","rating":4.8,"time":"Mañana 17:00"},{"id":"p1","name":"Dra. Inés Flores","specialty":"Pediatría","zone":"La Vega","rating":4.7,"time":"Mañana 15:00"},{"id":"p2","name":"Dr. Tomás Vera","specialty":"Pediatría","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"p3","name":"Dra. Paula Serrano","specialty":"Pediatría","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"o1","name":"Dr. Gabriel Solís","specialty":"Otorrinolaringología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"o2","name":"Dra. Julia León","specialty":"Otorrinolaringología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"o3","name":"Dr. Daniel Prado","specialty":"Otorrinolaringología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"t1","name":"Dra. Clara Molina","specialty":"Traumatología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"t2","name":"Dr. Martín Arias","specialty":"Traumatología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"t3","name":"Dra. Renata Vega","specialty":"Traumatología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"v1","name":"Dra. Sofía Peralta","specialty":"Oftalmología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"v2","name":"Dr. Adrián Salas","specialty":"Oftalmología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"v3","name":"Dra. Eva Durán","specialty":"Oftalmología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"u1","name":"Dr. Emilio Rocha","specialty":"Urología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"u2","name":"Dra. Mara Acosta","specialty":"Urología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"u3","name":"Dr. Iván Funes","specialty":"Urología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"gy1","name":"Dra. Alba Quiroga","specialty":"Ginecología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"gy2","name":"Dra. Iris Aguilar","specialty":"Ginecología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"gy3","name":"Dr. Luis Paredes","specialty":"Ginecología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"ga1","name":"Dra. Teresa Cárdenas","specialty":"Gastroenterología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"ga2","name":"Dr. Simón Castro","specialty":"Gastroenterología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"ga3","name":"Dra. Nora Rojas","specialty":"Gastroenterología","zone":"Santiago","rating":4.5,"time":"Mañana 15:00"},{"id":"n1","name":"Dr. Julián Roca","specialty":"Neurología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"n2","name":"Dra. Laura Marín","specialty":"Neurología","zone":"Santiago","rating":4.5,"time":"Mañana 15:00"}];
+const apiOrigin = 'https://lia-demo-citas-web.emeraldscout4.chatgpt.site';
+const voiceStage = byId('voice-stage');
+let bridgeWindow, bridgeReady = false;
+const pendingApi = new Map();
+
+window.addEventListener('message', event => {
+  if (!bridgeWindow || event.origin !== apiOrigin || event.source !== bridgeWindow) return;
+  const data = event.data ?? {};
+  if (data.type === 'lia-ready') {
+    bridgeReady = true;
+    byId('connect-api').textContent = 'API conectada';
+    liveButton.hidden = mic.hidden = false;
+    status.textContent = 'API conectada. Puedes iniciar la voz en vivo o escribir.';
+    return;
+  }
+  const request = pendingApi.get(data.id);
+  if (!request) return;
+  if (data.type === 'lia-error') request.reject(new Error('Falló la conexión con la API de Lía.'));
+  if (data.type === 'lia-response') {
+    request.resolve(new Response(data.bytes,{status:data.status,headers:{'Content-Type':data.contentType ?? 'application/octet-stream'}}));
+  }
+});
+
+async function apiFetch(path, options = {}) {
+  if (!publicDirectory) return fetch(path,options);
+  if (!bridgeReady || !bridgeWindow || bridgeWindow.closed) throw new Error('Conecta Gemini desde el panel de voz.');
+  const id = crypto.randomUUID();
+  const signal = options.signal;
+  if (signal?.aborted) throw signal.reason;
+  return new Promise((resolve,reject) => {
+    const finish = callback => value => {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', abort);
+      pendingApi.delete(id);
+      callback(value);
+    };
+    const abort = () => finish(reject)(signal.reason);
+    const timer = setTimeout(()=>finish(reject)(new Error('La API tardó demasiado.')),50000);
+    pendingApi.set(id,{resolve:finish(resolve),reject:finish(reject)});
+    signal?.addEventListener('abort',abort,{once:true});
+    bridgeWindow.postMessage({type:'lia-request',id,path,body:options.body},apiOrigin);
+  });
+}
 try { bookings = JSON.parse(localStorage.getItem('lia-bookings-do') || '[]'); } catch {}
 function bubble(text, mine = false) {
   const node = document.createElement('div');
@@ -73,7 +160,7 @@ if (publicDirectory) {
 } else {
   fetch('/api/slots').then(r => r.json()).then(data => { slots = data; render(matching); }).catch(() => { status.textContent = 'No se pudieron cargar los turnos.'; });
 }
-byId('prompt').onclick = () => { input.value = 'Busca dermatología por la tarde'; input.focus(); };
+byId('prompt').onclick = () => { input.value = 'Busca dermatología en Santiago'; input.focus(); };
 const AudioOutput = window.AudioContext || window.webkitAudioContext;
 mic.disabled = !navigator.mediaDevices?.getUserMedia || !window.MediaRecorder || !AudioOutput;
 if (mic.disabled) mic.title = 'Abre la demo en un navegador con acceso al micrófono';
@@ -136,7 +223,7 @@ async function transcribeTurn(blob) {
   try {
     const wav = await toWav(blob);
     if (controller.signal.aborted) return;
-    const response = await fetch('/api/transcribe',{
+    const response = await apiFetch('/api/transcribe',{
       method:'POST', headers:{'Content-Type':'audio/wav'}, body:wav, signal:controller.signal
     });
     const result = await response.json();
@@ -228,7 +315,7 @@ async function speak(reply) {
   const controller = new AbortController();
   speechRequest = controller;
   try {
-    const response = await fetch('/api/speech', {
+    const response = await apiFetch('/api/speech', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({text:reply}),
@@ -260,7 +347,7 @@ async function sendMessage(message) {
   send.disabled = true;
   stopCapture();
   bubble(message,true);
-  if (publicDirectory) {
+  if (publicDirectory && (!bridgeReady || bridgeWindow?.closed)) {
     const normalize = value => value.toLowerCase().normalize('NFD').replace(/\p{M}/gu,'');
     const query = normalize(message);
     const province = slots.find(slot => query.includes(normalize(slot.zone)))?.zone;
@@ -298,7 +385,7 @@ async function sendMessage(message) {
       return;
     }
 
-    const response = await fetch('/api/chat',{
+    const response = await apiFetch('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({message,history:history.slice(-8),previousIds:matching,bookedIds:bookings})
@@ -343,11 +430,25 @@ liveButton.disabled = !AudioOutput || !window.WebSocket;
 if (publicDirectory) {
   mic.hidden = true;
   liveButton.hidden = true;
+  const connect = document.createElement('button');
+  connect.id = 'connect-api';
+  connect.className = 'primary';
+  connect.textContent = 'Conectar Gemini';
+  connect.onclick = () => {
+    if (bridgeReady && bridgeWindow && !bridgeWindow.closed) {
+      bridgeWindow.focus();
+      return;
+    }
+    bridgeReady = false;
+    bridgeWindow = window.open(apiOrigin+'/conexion','lia-conexion','popup,width=560,height=440');
+    status.textContent = bridgeWindow ? 'Autoriza la conexión en la ventana que se abrió.' : 'Permite la ventana emergente o abre la demo privada.';
+  };
+  byId('voice-controls').prepend(connect);
   const fullDemo = document.createElement('a');
-  fullDemo.href = 'https://lia-demo-citas-web.emeraldscout4.chatgpt.site/?rd=1';
-  fullDemo.textContent = 'Abrir demo privada con Gemini';
-  status.before(fullDemo);
-  status.textContent = 'Vista pública. Busca y confirma turnos ficticios en este navegador.';
+  fullDemo.href = apiOrigin+'/?rd=2';
+  fullDemo.textContent = 'Abrir demo privada';
+  byId('voice-controls').append(fullDemo);
+  status.textContent = 'Puedes buscar turnos sin conectar la API.';
 }
 
 const liveTools = [
@@ -383,12 +484,13 @@ function closeLive(message = '') {
   session.socket?.close();
   releaseLiveMicrophone(session);
   for (const node of session.playback) node.stop();
-  liveButton.textContent = 'Iniciar Gemini Live';
+  liveButton.textContent = 'Iniciar voz en vivo';
   liveButton.setAttribute('aria-pressed','false');
   liveMic.hidden = true;
   liveMic.disabled = false;
   liveMic.textContent = 'Activar micrófono';
   liveMic.setAttribute('aria-pressed','false');
+  voiceStage.dataset.state = 'idle';
   status.textContent = message;
 }
 
@@ -405,10 +507,19 @@ function playLive(session, encoded) {
   const node = audioContext.createBufferSource();
   node.buffer = clip;
   node.connect(audioContext.destination);
-  node.onended = () => { session.playback.delete(node); node.disconnect(); };
+  node.onended = () => {
+    session.playback.delete(node);
+    node.disconnect();
+    if (liveSession === session && !session.playback.size) {
+      voiceStage.dataset.state = session.stream ? 'listening' : 'idle';
+      status.textContent = session.stream ? 'Te escucho…' : 'Micrófono apagado. Puedes escribir.';
+    }
+  };
   session.playback.add(node);
   const start = Math.max(audioContext.currentTime+.025,session.nextAudio);
   node.start(start);
+  voiceStage.dataset.state = 'speaking';
+  status.textContent = 'Lía está hablando…';
   session.nextAudio = start + clip.duration;
 }
 
@@ -457,7 +568,15 @@ async function startLiveMicrophone(session) {
       return;
     }
     session.stream = stream;
-    await audioContext.audioWorklet.addModule('/api/live-capture.js');
+    if (publicDirectory) {
+      const response = await apiFetch('/api/live-capture.js');
+      if (!response.ok) throw new Error('No se pudo cargar el módulo de micrófono.');
+      const moduleUrl = URL.createObjectURL(await response.blob());
+      try { await audioContext.audioWorklet.addModule(moduleUrl); }
+      finally { URL.revokeObjectURL(moduleUrl); }
+    } else {
+      await audioContext.audioWorklet.addModule('/api/live-capture.js');
+    }
     if (liveSession !== session) return;
     session.source = audioContext.createMediaStreamSource(stream);
     session.capture = new AudioWorkletNode(audioContext,'lia-capture');
@@ -474,6 +593,7 @@ async function startLiveMicrophone(session) {
     session.muted = muted;
     liveMic.textContent = 'Silenciar micrófono';
     liveMic.setAttribute('aria-pressed','true');
+    voiceStage.dataset.state = 'listening';
     status.textContent = 'Gemini Live conectado. Te escucho…';
   } catch {
     releaseLiveMicrophone(session);
@@ -491,6 +611,7 @@ liveMic.onclick = () => {
     sendLive(session,{realtimeInput:{audioStreamEnd:true}});
     liveMic.textContent = 'Activar micrófono';
     liveMic.setAttribute('aria-pressed','false');
+    if (!session.playback.size) voiceStage.dataset.state = 'idle';
     status.textContent = 'Micrófono silenciado. Puedes seguir escribiendo.';
   } else {
     void startLiveMicrophone(session);
@@ -504,6 +625,7 @@ async function receiveLive(session, event) {
     clearTimeout(session.timeout);
     session.ready = true;
     liveMic.hidden = false;
+    voiceStage.dataset.state = 'idle';
     status.textContent = liveTextOnly ? 'Gemini Live conectado. Escribe para escuchar la respuesta.' : 'Gemini Live conectado. Preparando micrófono…';
     if (!liveTextOnly) void startLiveMicrophone(session);
   }
@@ -512,6 +634,7 @@ async function receiveLive(session, event) {
     for (const node of session.playback) node.stop();
     session.playback.clear();
     session.nextAudio = 0;
+    voiceStage.dataset.state = session.stream ? 'listening' : 'idle';
   }
   if (content?.inputTranscription?.text) session.input += content.inputTranscription.text;
   if (content?.outputTranscription?.text) session.output += content.outputTranscription.text;
@@ -546,12 +669,13 @@ liveButton.onclick = async () => {
   const session = {playback:new Set(),nextAudio:0,input:'',output:''};
   liveSession = session;
   liveButton.setAttribute('aria-pressed','true');
-  liveButton.textContent = 'Terminar Gemini Live';
+  liveButton.textContent = 'Terminar voz en vivo';
+  voiceStage.dataset.state = 'connecting';
   status.textContent = 'Conectando con Gemini Live…';
   try {
     audioContext ??= new AudioOutput();
     await audioContext.resume();
-    const response = await fetch('/api/live-token',{method:'POST'});
+    const response = await apiFetch('/api/live-token',{method:'POST'});
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
     if (liveSession !== session) return;
@@ -579,4 +703,5 @@ liveButton.onclick = async () => {
 };
 mic.addEventListener('click',()=>{ if (liveSession) closeLive(); },{capture:true});
 window.addEventListener('pagehide',()=>closeLive());
-</script></html>
+</script></body></html>
+
