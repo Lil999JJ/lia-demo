@@ -55,49 +55,13 @@ let voiceActive = false, audioContext, audioSource, speechRequest;
 let urgent = false;
 let bookings = [];
 const publicDirectory = [{"id":"g1","name":"Dra. Sara Lima","specialty":"Medicina general","zone":"La Vega","rating":4.9,"time":"Mañana 10:00"},{"id":"g2","name":"Dr. Bruno Soto","specialty":"Medicina general","zone":"Santo Domingo","rating":4.6,"time":"Mañana 11:30"},{"id":"g3","name":"Dra. Valeria Pinto","specialty":"Medicina general","zone":"La Vega","rating":4.7,"time":"Mañana 15:00"},{"id":"g4","name":"Dr. Nicolás Reyes","specialty":"Medicina general","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"d1","name":"Dra. Elena Paz","specialty":"Dermatología","zone":"Santiago","rating":4.8,"time":"Mañana 15:00"},{"id":"d2","name":"Dr. Mateo Ríos","specialty":"Dermatología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 17:00"},{"id":"d3","name":"Dra. Lucía Montes","specialty":"Dermatología","zone":"La Vega","rating":4.8,"time":"Mañana 17:00"},{"id":"p1","name":"Dra. Inés Flores","specialty":"Pediatría","zone":"La Vega","rating":4.7,"time":"Mañana 15:00"},{"id":"p2","name":"Dr. Tomás Vera","specialty":"Pediatría","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"p3","name":"Dra. Paula Serrano","specialty":"Pediatría","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"o1","name":"Dr. Gabriel Solís","specialty":"Otorrinolaringología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 17:00"},{"id":"o2","name":"Dra. Julia León","specialty":"Otorrinolaringología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"o3","name":"Dr. Daniel Prado","specialty":"Otorrinolaringología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"t1","name":"Dra. Clara Molina","specialty":"Traumatología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 09:00"},{"id":"t2","name":"Dr. Martín Arias","specialty":"Traumatología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"t3","name":"Dra. Renata Vega","specialty":"Traumatología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"v1","name":"Dra. Sofía Peralta","specialty":"Oftalmología","zone":"Santiago","rating":4.5,"time":"Mañana 11:30"},{"id":"v2","name":"Dr. Adrián Salas","specialty":"Oftalmología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"v3","name":"Dra. Eva Durán","specialty":"Oftalmología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"u1","name":"Dr. Emilio Rocha","specialty":"Urología","zone":"Santo Domingo","rating":4.6,"time":"Mañana 15:00"},{"id":"u2","name":"Dra. Mara Acosta","specialty":"Urología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"u3","name":"Dr. Iván Funes","specialty":"Urología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"gy1","name":"Dra. Alba Quiroga","specialty":"Ginecología","zone":"La Vega","rating":4.7,"time":"Mañana 17:00"},{"id":"gy2","name":"Dra. Iris Aguilar","specialty":"Ginecología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"gy3","name":"Dr. Luis Paredes","specialty":"Ginecología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"ga1","name":"Dra. Teresa Cárdenas","specialty":"Gastroenterología","zone":"Puerto Plata","rating":4.8,"time":"Mañana 09:00"},{"id":"ga2","name":"Dr. Simón Castro","specialty":"Gastroenterología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"ga3","name":"Dra. Nora Rojas","specialty":"Gastroenterología","zone":"Santiago","rating":4.5,"time":"Mañana 15:00"},{"id":"n1","name":"Dr. Julián Roca","specialty":"Neurología","zone":"San Cristóbal","rating":4.9,"time":"Mañana 11:30"},{"id":"n2","name":"Dra. Laura Marín","specialty":"Neurología","zone":"Santiago","rating":4.5,"time":"Mañana 15:00"}];
-const apiOrigin = 'https://lia-demo-citas-web.emeraldscout4.chatgpt.site';
+const apiOrigin = "https://lia-api.enyermorales57.workers.dev";
 const voiceStage = byId('voice-stage');
-let bridgeWindow, bridgeReady = false;
-const pendingApi = new Map();
 
-window.addEventListener('message', event => {
-  if (!bridgeWindow || event.origin !== apiOrigin || event.source !== bridgeWindow) return;
-  const data = event.data ?? {};
-  if (data.type === 'lia-ready') {
-    bridgeReady = true;
-    byId('connect-api').textContent = 'API conectada';
-    liveButton.hidden = mic.hidden = false;
-    status.textContent = 'API conectada. Puedes iniciar la voz en vivo o escribir.';
-    return;
-  }
-  const request = pendingApi.get(data.id);
-  if (!request) return;
-  if (data.type === 'lia-error') request.reject(new Error('Falló la conexión con la API de Lía.'));
-  if (data.type === 'lia-response') {
-    request.resolve(new Response(data.bytes,{status:data.status,headers:{'Content-Type':data.contentType ?? 'application/octet-stream'}}));
-  }
-});
-
-async function apiFetch(path, options = {}) {
-  if (!publicDirectory) return fetch(path,options);
-  if (!bridgeReady || !bridgeWindow || bridgeWindow.closed) throw new Error('Conecta Gemini desde el panel de voz.');
-  const id = crypto.randomUUID();
-  const signal = options.signal;
-  if (signal?.aborted) throw signal.reason;
-  return new Promise((resolve,reject) => {
-    const finish = callback => value => {
-      clearTimeout(timer);
-      signal?.removeEventListener('abort', abort);
-      pendingApi.delete(id);
-      callback(value);
-    };
-    const abort = () => finish(reject)(signal.reason);
-    const timer = setTimeout(()=>finish(reject)(new Error('La API tardó demasiado.')),50000);
-    pendingApi.set(id,{resolve:finish(resolve),reject:finish(reject)});
-    signal?.addEventListener('abort',abort,{once:true});
-    bridgeWindow.postMessage({type:'lia-request',id,path,body:options.body},apiOrigin);
-  });
+function apiFetch(path, options) {
+  return fetch(apiOrigin ? new URL(path,apiOrigin) : path,options);
 }
+
 try { bookings = JSON.parse(localStorage.getItem('lia-bookings-do') || '[]'); } catch {}
 function bubble(text, mine = false) {
   const node = document.createElement('div');
@@ -347,7 +311,7 @@ async function sendMessage(message) {
   send.disabled = true;
   stopCapture();
   bubble(message,true);
-  if (publicDirectory && (!bridgeReady || bridgeWindow?.closed)) {
+  if (publicDirectory && !apiOrigin) {
     const normalize = value => value.toLowerCase().normalize('NFD').replace(/\p{M}/gu,'');
     const query = normalize(message);
     const province = slots.find(slot => query.includes(normalize(slot.zone)))?.zone;
@@ -427,28 +391,10 @@ const liveMic = byId('live-mic');
 const liveTextOnly = new URLSearchParams(location.search).get('live') === 'texto';
 let liveSession;
 liveButton.disabled = !AudioOutput || !window.WebSocket;
-if (publicDirectory) {
+if (publicDirectory && !apiOrigin) {
   mic.hidden = true;
   liveButton.hidden = true;
-  const connect = document.createElement('button');
-  connect.id = 'connect-api';
-  connect.className = 'primary';
-  connect.textContent = 'Conectar Gemini';
-  connect.onclick = () => {
-    if (bridgeReady && bridgeWindow && !bridgeWindow.closed) {
-      bridgeWindow.focus();
-      return;
-    }
-    bridgeReady = false;
-    bridgeWindow = window.open(apiOrigin+'/conexion','lia-conexion','popup,width=560,height=440');
-    status.textContent = bridgeWindow ? 'Autoriza la conexión en la ventana que se abrió.' : 'Permite la ventana emergente o abre la demo privada.';
-  };
-  byId('voice-controls').prepend(connect);
-  const fullDemo = document.createElement('a');
-  fullDemo.href = apiOrigin+'/?rd=2';
-  fullDemo.textContent = 'Abrir demo privada';
-  byId('voice-controls').append(fullDemo);
-  status.textContent = 'Puedes buscar turnos sin conectar la API.';
+  status.textContent = 'Vista de directorio. La voz necesita una API configurada.';
 }
 
 const liveTools = [
@@ -704,4 +650,3 @@ liveButton.onclick = async () => {
 mic.addEventListener('click',()=>{ if (liveSession) closeLive(); },{capture:true});
 window.addEventListener('pagehide',()=>closeLive());
 </script></body></html>
-
